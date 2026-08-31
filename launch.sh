@@ -102,11 +102,12 @@ fi
 
 cd "$GAME_DIR"
 
-# 5. Launch Game with Single-Core Affinity & Apple Silicon DXVK / MoltenVK optimizations
+# 5. Launch Game with Synchronous Lockstep Rendering & Apple Silicon DXVK / MoltenVK optimizations
 MVK_CONFIG_FAST_MATH_ENABLED=0 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
 MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=1 \
-DXVK_ASYNC=1 \
+MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=1 \
+DXVK_ASYNC=0 \
 DXVK_LOG_LEVEL=none \
 WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
