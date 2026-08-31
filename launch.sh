@@ -95,9 +95,20 @@ RETINA_H=$((SCREEN_H * 2))
 
 # 4. Patch Registry Fixes
 REG="$BOTTLE_PATH/system.reg"
+USER_REG="$BOTTLE_PATH/user.reg"
 if [ -f "$REG" ]; then
     # Fix bloom flickering
     sed -i '' 's/"g_VisualTreatment"=dword:00000001/"g_VisualTreatment"=dword:00000000/g' "$REG" 2>/dev/null || true
+fi
+if [ -f "$USER_REG" ]; then
+    if ! grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
+        sed -i '' '/\[Software\\\\Wine\]/a\
+\
+\[Software\\\\Wine\\\\DirectSound\]\
+"HelBuflen"=dword:00000080\
+"SndQueueMax"=dword:00000003
+' "$USER_REG" 2>/dev/null || true
+    fi
 fi
 
 cd "$GAME_DIR"
@@ -107,9 +118,10 @@ MVK_CONFIG_FAST_MATH_ENABLED=0 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
 MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=1 \
 MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=1 \
+MVK_CONFIG_PRESENT_WITH_TRANSACTION=1 \
 DXVK_ASYNC=0 \
 DXVK_LOG_LEVEL=none \
-WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
+WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b;dsound=b,n" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
 explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
@@ -117,4 +129,5 @@ cmd /c start "" /affinity 1 "Z:$GAME_DIR\\$EXE_NAME" \
 >/tmp/nfsmw_output.log 2>&1 &
 
 echo "✅ Game launched successfully! Enjoy the race."
+
 
