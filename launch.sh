@@ -48,9 +48,14 @@ fi
 
 # 2. Locate Whisky Wine & Bottle
 BOTTLE_PATH=""
+DEFAULT_BOTTLE_UUID="B410A827-7F76-4209-A889-9890FFDDAAB6"
 for container in "com.franke.Whisky" "com.isaacmarovitz.Whisky"; do
     if [ -d "$HOME/Library/Containers/$container/Bottles" ]; then
-        # Prefer bottle matching nfs or speed
+        if [ -d "$HOME/Library/Containers/$container/Bottles/$DEFAULT_BOTTLE_UUID" ]; then
+            BOTTLE_PATH="$HOME/Library/Containers/$container/Bottles/$DEFAULT_BOTTLE_UUID"
+            WHISKY_CONTAINER="$container"
+            break
+        fi
         BOTTLE_PATH=$(find "$HOME/Library/Containers/$container/Bottles" -maxdepth 1 -mindepth 1 -type d -name "*NFS*" -o -name "*nfs*" -o -name "*speed*" 2>/dev/null | head -n 1)
         if [ -z "$BOTTLE_PATH" ]; then
             BOTTLE_PATH=$(find "$HOME/Library/Containers/$container/Bottles" -maxdepth 1 -mindepth 1 -type d | head -n 1)
@@ -66,6 +71,17 @@ if [ -z "$BOTTLE_PATH" ] || [ ! -d "$BOTTLE_PATH" ]; then
     echo "❌ Error: No Whisky bottle found."
     echo "Please create a Windows 10 bottle in Whisky app first."
     exit 1
+fi
+
+# Ensure Career Save Files are Synced between Bottle and macOS Documents
+CURRENT_USER="$(whoami)"
+if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ] || [ -d "$HOME/Documents/NFS Most Wanted" ]; then
+    mkdir -p "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" 2>/dev/null || true
+    mkdir -p "$HOME/Documents/NFS Most Wanted" 2>/dev/null || true
+    # Sync save files bidirectionally
+    if [ -d "$HOME/Documents/NFS Most Wanted" ]; then
+        cp -rn "$HOME/Documents/NFS Most Wanted/"* "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted/" 2>/dev/null || true
+    fi
 fi
 
 # Locate Wine Binary
@@ -119,8 +135,8 @@ DXVK_LOG_LEVEL=none \
 WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
-explorer /desktop=NFSMW,${SCREEN_W}x${SCREEN_H} \
+explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
 "Z:$GAME_DIR\\$EXE_NAME" \
 >/tmp/nfsmw_output.log 2>&1 &
 
-echo "✅ Game launched successfully! Enjoy the race."
+echo "✅ Game launched successfully in fullscreen! Enjoy the race."
