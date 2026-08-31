@@ -73,14 +73,16 @@ if [ -z "$BOTTLE_PATH" ] || [ ! -d "$BOTTLE_PATH" ]; then
     exit 1
 fi
 
-# Ensure Career Save Files are Synced between Bottle and macOS Documents
+# Ensure Career Save Directory is Directly Linked to macOS Documents for instant saving
 CURRENT_USER="$(whoami)"
-if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ] || [ -d "$HOME/Documents/NFS Most Wanted" ]; then
-    mkdir -p "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" 2>/dev/null || true
-    mkdir -p "$HOME/Documents/NFS Most Wanted" 2>/dev/null || true
-    # Sync save files bidirectionally
-    if [ -d "$HOME/Documents/NFS Most Wanted" ]; then
-        cp -rn "$HOME/Documents/NFS Most Wanted/"* "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted/" 2>/dev/null || true
+mkdir -p "$HOME/Documents/NFS Most Wanted" 2>/dev/null || true
+if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents" ]; then
+    if [ ! -L "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ]; then
+        if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ]; then
+            cp -rn "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+            rm -rf "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted"
+        fi
+        ln -sf "$HOME/Documents/NFS Most Wanted" "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted"
     fi
 fi
 
