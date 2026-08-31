@@ -102,9 +102,7 @@ fi
 
 cd "$GAME_DIR"
 
-echo "🏎️  Launching NFS: Most Wanted in Retina Fullscreen (${RETINA_W}x${RETINA_H})..."
-
-# 5. Launch Game with Apple Silicon DXVK / MoltenVK optimizations
+# 5. Launch Game with Single-Core Affinity & Apple Silicon DXVK / MoltenVK optimizations
 MVK_CONFIG_FAST_MATH_ENABLED=0 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
 MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=1 \
@@ -114,7 +112,8 @@ WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
 explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
-"Z:$GAME_DIR\\$EXE_NAME" \
+cmd /c start "" /affinity 1 "Z:$GAME_DIR\\$EXE_NAME" \
 >/tmp/nfsmw_output.log 2>&1 &
 
 echo "✅ Game launched successfully! Enjoy the race."
+

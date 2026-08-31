@@ -74,7 +74,32 @@ if [ ! -d "$GAME_DIR" ]; then
 fi
 echo "✅ Game Folder: $GAME_DIR"
 
-# 5. Install Patched Apple Silicon DXVK D3D9 & Config
+# 5. Patch 4GB Memory Limit (Large Address Aware)
+echo ""
+echo "🧠 Patching Game Memory (4GB Large Address Aware to prevent midgame crashes)..."
+python3 -c '
+import os, glob
+game_dir = "'"$GAME_DIR"'"
+for path in glob.glob(os.path.join(game_dir, "*.exe")):
+    try:
+        with open(path, "r+b") as f:
+            data = bytearray(f.read())
+            if data[:2] != b"MZ": continue
+            pe_offset = int.from_bytes(data[0x3C:0x40], "little")
+            if pe_offset + 0x18 > len(data) or data[pe_offset:pe_offset+4] != b"PE\x00\x00": continue
+            chars_offset = pe_offset + 0x16
+            chars = int.from_bytes(data[chars_offset:chars_offset+2], "little")
+            if not (chars & 0x0020):
+                chars |= 0x0020
+                data[chars_offset:chars_offset+2] = chars.to_bytes(2, "little")
+                f.seek(0)
+                f.write(data)
+                print(f"   ✅ Patched 4GB LAA: {os.path.basename(path)}")
+    except Exception as e:
+        pass
+'
+
+# 6. Install Patched Apple Silicon DXVK D3D9 & Config
 echo ""
 echo "📦 Installing patched DXVK D3D9 (MoltenVK Apple Silicon edition)..."
 
