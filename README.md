@@ -35,8 +35,8 @@
 ### 3. Run Setup Script
 Clone this repository and run the setup script:
 ```bash
-git clone https://github.com/your-username/nfsformac.git
-cd nfsformac
+git clone https://github.com/udaydomadiya08/nfsMW2005_MAC.git
+cd nfsMW2005_MAC
 ./setup.sh
 ```
 *(Optionally pass your game path: `./setup.sh "/path/to/NFS Most Wanted (EA)"`)*
