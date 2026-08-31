@@ -1,0 +1,45 @@
+# Whisky Bottle Configuration for NFS Most Wanted (2005)
+# Place this in your Whisky bottle folder
+
+[environment]
+# Direct3D 9 override: use Wine builtin Direct3D9 (WineD3D)
+# Note: DXVK requires geometry shaders which are not supported by MoltenVK on Apple Silicon
+WINEDLLOVERRIDES = "d3d9=b"
+
+# Enable command stream multithreading for better performance
+CSMT = "1"
+
+# Disable debug output for maximum performance
+WINEDEBUG = "-all"
+
+# MoltenVK compatibility flags
+MVK_CONFIG_FAST_MATH_ENABLED = "0"
+MVK_CONFIG_RESUME_LOST_DEVICE = "1"
+
+# Audio latency
+PULSE_LATENCY_MSEC = "60"
+
+[bottle]
+# Windows version
+win10 = true
+
+# Renderer - Wine builtin (WineD3D)
+renderer = "wined3d"
+
+# Enhanced sync
+msync = true
+esync = false
+fsync = false
+
+# Virtual Desktop - Prevents native resolution-switch crashes on macOS Retina displays
+virtual_desktop = true
+virtual_desktop_resolution = "1280x720"
+
+# M1/M2/M3/M4 Tuned Settings
+# ========================================
+# In-game graphics recommendations:
+# - Resolution: 1280x720 or 1600x900
+# - Texture Quality: High / Medium
+# - Visual Treatment: Low (Disables bloom flicker)
+# - Motion Blur: Off (Optional)
+# ========================================
