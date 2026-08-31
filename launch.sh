@@ -105,8 +105,10 @@ if [ -f "$USER_REG" ]; then
         sed -i '' '/\[Software\\\\Wine\]/a\
 \
 \[Software\\\\Wine\\\\DirectSound\]\
-"HelBuflen"=dword:00000080\
-"SndQueueMax"=dword:00000003
+"HelBuflen"=dword:00000040\
+"SndQueueMax"=dword:00000002\
+"MaxHardwareChannels"=dword:00000010\
+"SpeakerConfig"=dword:00000002
 ' "$USER_REG" 2>/dev/null || true
     fi
 fi
