@@ -126,10 +126,12 @@ fi
 
 cd "$GAME_DIR"
 
-# 5. Launch Game with Apple Silicon DXVK / MoltenVK Performance Tuning
-MVK_CONFIG_FAST_MATH_ENABLED=1 \
+# 5. Launch Game with Apple Silicon DXVK / MoltenVK Performance & Stability Tuning
+# Disabling Metal 3 Argument Buffers & Swizzle prevents IOGPUGroupMemory kernel panics/shutdowns on macOS Sequoia
+MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS=0 \
+MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=0 \
+MVK_CONFIG_FAST_MATH_ENABLED=0 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
-MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=1 \
 MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=0 \
 MVK_CONFIG_PRESENT_WITH_TRANSACTION=0 \
 DXVK_ASYNC=1 \
