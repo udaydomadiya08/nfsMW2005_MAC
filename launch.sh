@@ -135,7 +135,7 @@ DXVK_LOG_LEVEL=none \
 WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
-explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
+explorer /desktop=NFSMW,${SCREEN_W}x${SCREEN_H} \
 "Z:$GAME_DIR\\$EXE_NAME" \
 >/tmp/nfsmw_output.log 2>&1 &
 
