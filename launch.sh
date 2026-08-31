@@ -101,35 +101,26 @@ if [ -f "$REG" ]; then
     sed -i '' 's/"g_VisualTreatment"=dword:00000001/"g_VisualTreatment"=dword:00000000/g' "$REG" 2>/dev/null || true
 fi
 if [ -f "$USER_REG" ]; then
-    if ! grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
-        sed -i '' '/\[Software\\\\Wine\]/a\
-\
-\[Software\\\\Wine\\\\DirectSound\]\
-"HelBuflen"=dword:00000040\
-"SndQueueMax"=dword:00000002\
-"MaxHardwareChannels"=dword:00000010\
-"SpeakerConfig"=dword:00000002
-' "$USER_REG" 2>/dev/null || true
+    if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
+        sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
     fi
 fi
 
 cd "$GAME_DIR"
 
-# 5. Launch Game with Synchronous Lockstep Rendering & Apple Silicon DXVK / MoltenVK optimizations
-MVK_CONFIG_FAST_MATH_ENABLED=0 \
+# 5. Launch Game with Apple Silicon DXVK / MoltenVK Performance Tuning
+MVK_CONFIG_FAST_MATH_ENABLED=1 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
 MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=1 \
-MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=1 \
-MVK_CONFIG_PRESENT_WITH_TRANSACTION=1 \
-DXVK_ASYNC=0 \
+MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=0 \
+MVK_CONFIG_PRESENT_WITH_TRANSACTION=0 \
+DXVK_ASYNC=1 \
 DXVK_LOG_LEVEL=none \
-WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b;dsound=b,n" \
+WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
-explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
-cmd /c start "" /affinity 1 "Z:$GAME_DIR\\$EXE_NAME" \
+explorer /desktop=NFSMW,${SCREEN_W}x${SCREEN_H} \
+"Z:$GAME_DIR\\$EXE_NAME" \
 >/tmp/nfsmw_output.log 2>&1 &
 
 echo "✅ Game launched successfully! Enjoy the race."
-
-
