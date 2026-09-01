@@ -130,6 +130,17 @@ cd "$GAME_DIR"
 # Disabling Metal 3 Argument Buffers & Swizzle prevents IOGPUGroupMemory kernel panics/shutdowns on macOS Sequoia
 # SDL_JOYSTICK_HIDAPI=0 + WINE_DISABLE_HIDAPI=1: Disables HID device enumeration that causes
 # DirectInput/setupapi crash at 0x0046578C (thread 00e0 CM_Get_DevNode write fault)
+# DSOUND fix: DSOUND_ReopenDevice Initialize failed 80004005 crash (thread 0184, NFS+0x420956):
+#   Pin Wine CoreAudio to BuiltInSpeaker, disable device-change notifications to prevent NULL read
+
+# Patch registry: lock DirectSound to BuiltInSpeaker, disable device-change reopen
+WINEPREFIX="$BOTTLE_PATH" "$WINE_BIN" reg add \
+  "HKCU\\Software\\Wine\\DirectSound" \
+  /v "DeviceGUID" /t REG_SZ /d "Default" /f 2>/dev/null || true
+WINEPREFIX="$BOTTLE_PATH" "$WINE_BIN" reg add \
+  "HKCU\\Software\\Wine\\DirectSound" \
+  /v "HelBuflen" /t REG_DWORD /d 2048 /f 2>/dev/null || true
+
 MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS=0 \
 MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE=0 \
 MVK_CONFIG_FAST_MATH_ENABLED=0 \
@@ -139,6 +150,7 @@ MVK_CONFIG_PRESENT_WITH_TRANSACTION=0 \
 SDL_JOYSTICK_HIDAPI=0 \
 SDL_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT="" \
 WINE_DISABLE_HIDAPI=1 \
+COREAUDIO_STREAMIOBUFFERFRAMESIZE=2048 \
 DXVK_ASYNC=1 \
 DXVK_LOG_LEVEL=info \
 DXVK_LOG_PATH="$GAME_DIR" \
