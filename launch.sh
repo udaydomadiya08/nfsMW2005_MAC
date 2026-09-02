@@ -122,6 +122,10 @@ if [ -f "$USER_REG" ]; then
     if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
         sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
     fi
+    # CRITICAL: Enforce Windows 10 - winxp causes audio NULL crash (NFS+0x422c66)
+    sed -i '' 's/"Version"="winxp"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win7"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win8"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
 fi
 
 cd "$GAME_DIR"
@@ -140,7 +144,7 @@ SDL_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT="" \
 WINE_DISABLE_HIDAPI=1 \
 DXVK_ASYNC=1 \
 DXVK_LOG_LEVEL=none \
-WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b;winmm=b;dsound=b" \
+WINEDLLOVERRIDES="d3d9=n,b;dinput8=n,b" \
 WINEPREFIX="$BOTTLE_PATH" \
 "$WINE_BIN" \
 explorer /desktop=NFSMW,${RETINA_W}x${RETINA_H} \
