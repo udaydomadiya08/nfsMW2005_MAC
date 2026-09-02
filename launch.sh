@@ -6,13 +6,7 @@
 
 set -e
 
-# Gracefully terminate existing Wine/game processes so DXVK can flush its shader cache to disk
-# IMPORTANT: pkill -9 (SIGKILL) prevents DXVK from saving compiled shaders → cache lost every time
-# Using SIGTERM (-15) first → gives DXVK 3 seconds to save cache → then SIGKILL if still running
-pkill -15 -f "need for speed" 2>/dev/null || true
-pkill -15 -f "speed.exe" 2>/dev/null || true
-pkill -15 -f "winedbg" 2>/dev/null || true
-sleep 3
+# Terminate any existing Wine or game processes to avoid device lock
 pkill -9 -f "need for speed" 2>/dev/null || true
 pkill -9 -f "speed.exe" 2>/dev/null || true
 pkill -9 -f "wine" 2>/dev/null || true
@@ -128,10 +122,6 @@ if [ -f "$USER_REG" ]; then
     if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
         sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
     fi
-    # CRITICAL: Enforce Windows 10 - winxp causes audio NULL crash (NFS+0x422c66)
-    sed -i '' 's/"Version"="winxp"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
-    sed -i '' 's/"Version"="win7"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
-    sed -i '' 's/"Version"="win8"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
 fi
 
 cd "$GAME_DIR"
