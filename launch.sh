@@ -122,6 +122,10 @@ if [ -f "$USER_REG" ]; then
     if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
         sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
     fi
+    # Enforce Windows 10 in bottle registry to prevent WinXP audio struct initialization fault
+    sed -i '' 's/"Version"="winxp"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win7"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win8"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
 fi
 
 cd "$GAME_DIR"
