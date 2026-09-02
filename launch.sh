@@ -6,7 +6,13 @@
 
 set -e
 
-# Terminate any existing Wine or game processes to avoid device lock
+# Gracefully terminate existing Wine/game processes so DXVK can flush its shader cache to disk
+# IMPORTANT: pkill -9 (SIGKILL) prevents DXVK from saving compiled shaders → cache lost every time
+# Using SIGTERM (-15) first → gives DXVK 3 seconds to save cache → then SIGKILL if still running
+pkill -15 -f "need for speed" 2>/dev/null || true
+pkill -15 -f "speed.exe" 2>/dev/null || true
+pkill -15 -f "winedbg" 2>/dev/null || true
+sleep 3
 pkill -9 -f "need for speed" 2>/dev/null || true
 pkill -9 -f "speed.exe" 2>/dev/null || true
 pkill -9 -f "wine" 2>/dev/null || true
