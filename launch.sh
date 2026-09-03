@@ -125,6 +125,8 @@ USER_REG="$BOTTLE_PATH/user.reg"
 if [ -f "$REG" ]; then
     # Fix bloom flickering
     sed -i '' 's/"g_VisualTreatment"=dword:00000001/"g_VisualTreatment"=dword:00000000/g' "$REG" 2>/dev/null || true
+    # Remove missing winemenubuilder to prevent wineboot error
+    sed -i '' '/"winemenubuilder"/d' "$REG" 2>/dev/null || true
 fi
 if [ -f "$USER_REG" ]; then
     if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
@@ -147,9 +149,11 @@ MVK_CONFIG_FAST_MATH_ENABLED=0 \
 MVK_CONFIG_RESUME_LOST_DEVICE=1 \
 MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS=0 \
 MVK_CONFIG_PRESENT_WITH_TRANSACTION=0 \
+MVK_CONFIG_LOG_LEVEL=1 \
 SDL_JOYSTICK_HIDAPI=0 \
 SDL_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT="" \
 WINE_DISABLE_HIDAPI=1 \
+WINEDEBUG=fixme-all \
 DXVK_ASYNC=1 \
 DXVK_LOG_LEVEL=none \
 COREAUDIO_DISABLE_DEVICE_DETECT=1 \
