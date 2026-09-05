@@ -120,7 +120,7 @@ if [ -d "$SYSTEM32" ]; then
     cp "$SCRIPT_DIR/dxvk.conf" "$SYSTEM32/dxvk.conf"
 fi
 
-# 6. Configure Bottle Registry (Native D3D9 + Retina Mode + Bloom Fix)
+# 7. Configure Bottle Registry (Native D3D9 + Retina Mode + Bloom Fix + Win10 + Clean Audio)
 echo "⚙️  Configuring Wine Registry settings..."
 USER_REG="$BOTTLE_PATH/user.reg"
 SYSTEM_REG="$BOTTLE_PATH/system.reg"
@@ -132,34 +132,39 @@ if [ -f "$USER_REG" ]; then
 "d3d9"="native,builtin"
 ' "$USER_REG" 2>/dev/null || true
     fi
+    if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
+        sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
+    fi
+    # Enforce Windows 10 in bottle registry to prevent WinXP audio struct initialization fault
+    sed -i '' 's/"Version"="winxp"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win7"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
+    sed -i '' 's/"Version"="win8"/"Version"="win10"/g' "$USER_REG" 2>/dev/null || true
 fi
 
-# Fix Bloom texture flickering
+# Fix Bloom texture flickering & remove missing winemenubuilder error
 if [ -f "$SYSTEM_REG" ]; then
     sed -i '' 's/"g_VisualTreatment"=dword:00000001/"g_VisualTreatment"=dword:00000000/g' "$SYSTEM_REG" 2>/dev/null || true
+    sed -i '' '/"winemenubuilder"/d' "$SYSTEM_REG" 2>/dev/null || true
 fi
 
-# 7. Create Double-Clickable Launch & Quit Commands in Game Folder
-echo "📝 Creating double-clickable launch.command and quit.command in game folder..."
+# 8. Link Career Save Directory to macOS Documents
+CURRENT_USER="$(whoami)"
+mkdir -p "$HOME/Documents/NFS Most Wanted" 2>/dev/null || true
+if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents" ]; then
+    if [ ! -L "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ]; then
+        if [ -d "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" ]; then
+            cp -rn "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+            rm -rf "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted"
+        fi
+        ln -sf "$HOME/Documents/NFS Most Wanted" "$BOTTLE_PATH/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted"
+    fi
+fi
 
-cat << 'EOF' > "$GAME_DIR/launch.command"
-#!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-"$SCRIPT_DIR/launch.sh" "$SCRIPT_DIR" 2>/dev/null || true
-EOF
+# 9. Copy Launch & Quit Command Scripts to Game Folder
+echo "📝 Copying launch.command, quit.command, launch.sh, quit.sh to game folder..."
 
-cat << 'EOF' > "$GAME_DIR/quit.command"
-#!/bin/bash
-pkill -9 -f "need for speed" 2>/dev/null || true
-pkill -9 -f "speed.exe" 2>/dev/null || true
-pkill -9 -f "wine" 2>/dev/null || true
-pkill -9 -f "explorer" 2>/dev/null || true
-pkill -9 -f "wineserver" 2>/dev/null || true
-pkill -9 -f "winedevice" 2>/dev/null || true
-pkill -9 -f "winedbg" 2>/dev/null || true
-echo "Game and Wine stopped successfully!"
-EOF
-
+cp "$SCRIPT_DIR/launch.command" "$GAME_DIR/launch.command"
+cp "$SCRIPT_DIR/quit.command" "$GAME_DIR/quit.command"
 cp "$SCRIPT_DIR/launch.sh" "$GAME_DIR/launch.sh"
 cp "$SCRIPT_DIR/quit.sh" "$GAME_DIR/quit.sh"
 
