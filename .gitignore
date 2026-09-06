@@ -2,3 +2,5 @@
 *.log
 *.dxvk-cache
 *.dxvk-state
+__pycache__/
+speedrun_splits.json

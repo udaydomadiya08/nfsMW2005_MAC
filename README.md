@@ -59,12 +59,23 @@ cd nfsMW2005_MAC
 ## ⚙️ Recommended In-Game Settings
 
 Inside the game's **Options > Video**:
-- **Resolution**: `1024x768` or `1280x1024` *(The custom DXVK swapchain automatically upscales it to your Mac's full Retina resolution)*
-- **Visual Treatment**: `Low` or `Off`
-- **Car Detail**: `High`
-- **World Detail**: `High`
-- **Road Reflection**: `High`
-- **Shadows**: `Medium`
+- **Resolution:** 1024×768 (DXVK automatically scales to your MacBook's native Retina resolution).
+- **Visual Treatment:** Low / Off (Eliminates Metal shader bloom artifacts).
+- **Frame Rate:** VSync On (locked smooth 60 FPS).
+
+---
+
+## 🤖 100% Free Autonomous Speedrun Bot (`bot.py`)
+
+An automated speedrun controller that progresses through Career mode, navigates menus, drives races, and tracks total playtime:
+
+- **100% Local & Free:** Zero paid APIs, zero cloud fees. Uses OpenCV + Tesseract OCR and macOS Quartz events.
+- **In-Engine AI Driving:** Uses native game pathfinding via `NFSMWExtraOptions` (AutoDrive).
+- **Live Stopwatch HUD:** Displays real-time progress and logs Blacklist split times to `speedrun_splits.json`.
+
+### How to Run:
+- **Double-click:** `run_bot.command`
+- **Or in terminal:** `python3 bot.py`
 
 ---
 

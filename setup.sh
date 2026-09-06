@@ -132,6 +132,11 @@ if [ -f "$USER_REG" ]; then
 "d3d9"="native,builtin"
 ' "$USER_REG" 2>/dev/null || true
     fi
+    if ! grep -q '"dinput8"' "$USER_REG" 2>/dev/null; then
+        sed -i '' '/\[Software\\\\Wine\\\\DllOverrides\]/a\
+"dinput8"="native,builtin"
+' "$USER_REG" 2>/dev/null || true
+    fi
     if grep -q 'DirectSound' "$USER_REG" 2>/dev/null; then
         sed -i '' '/\[Software\\\\Wine\\\\DirectSound\]/,+4d' "$USER_REG" 2>/dev/null || true
     fi
