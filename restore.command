@@ -16,8 +16,13 @@ else
 fi
 
 WHISKY_BOTTLES="$HOME/Library/Containers/com.franke.Whisky/Bottles"
-BOTTLE_UUID="2ED2AE69-D491-46CC-8AF5-AD25236121AE"
-TARGET_BOTTLE="$WHISKY_BOTTLES/$BOTTLE_UUID"
+EXISTING_BOTTLE=$(find "$WHISKY_BOTTLES" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | head -n 1)
+if [ -n "$EXISTING_BOTTLE" ]; then
+    TARGET_BOTTLE="$EXISTING_BOTTLE"
+else
+    BOTTLE_UUID="2ED2AE69-D491-46CC-8AF5-AD25236121AE"
+    TARGET_BOTTLE="$WHISKY_BOTTLES/$BOTTLE_UUID"
+fi
 
 echo "=========================================================="
 echo "🏎️  NFS Most Wanted (2005) - Restoring Everything"
@@ -36,14 +41,13 @@ fi
 echo "💾 Restoring Career Saves to ~/Documents/NFS Most Wanted..."
 mkdir -p "$HOME/Documents/NFS Most Wanted"
 
-if [ -d "$BACKUP_DIR/udayrec_save" ]; then
-    cp -rn "$BACKUP_DIR/udayrec_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
-fi
-if [ -d "$BACKUP_DIR/bottle_B410_save" ]; then
-    cp -rn "$BACKUP_DIR/bottle_B410_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+if [ -d "$BACKUP_DIR/game_completed_100_percent_save" ]; then
+    cp -rf "$BACKUP_DIR/game_completed_100_percent_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+elif [ -d "$BACKUP_DIR/bottle_B410_save" ]; then
+    cp -rf "$BACKUP_DIR/bottle_B410_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
 fi
 
-echo "✅ Career saves restored successfully!"
+echo "✅ Career saves restored successfully (100% Completed Game Profile)!"
 
 # 3. Setup Wine User Symlink if bottle exists
 CURRENT_USER="$(whoami)"

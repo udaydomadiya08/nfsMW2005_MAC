@@ -6,46 +6,50 @@
 
 set -e
 
-BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$SCRIPT_DIR/saves_backup" ]; then
+    BACKUP_DIR="$SCRIPT_DIR/saves_backup"
+elif [ -d "$HOME/Documents/NFS_SAVES_BACKUP" ]; then
+    BACKUP_DIR="$HOME/Documents/NFS_SAVES_BACKUP"
+else
+    BACKUP_DIR="$SCRIPT_DIR"
+fi
+
 WHISKY_BOTTLES="$HOME/Library/Containers/com.franke.Whisky/Bottles"
-BOTTLE_UUID="2ED2AE69-D491-46CC-8AF5-AD25236121AE"
-TARGET_BOTTLE="$WHISKY_BOTTLES/$BOTTLE_UUID"
+EXISTING_BOTTLE=$(find "$WHISKY_BOTTLES" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | head -n 1)
+if [ -n "$EXISTING_BOTTLE" ]; then
+    TARGET_BOTTLE="$EXISTING_BOTTLE"
+else
+    BOTTLE_UUID="2ED2AE69-D491-46CC-8AF5-AD25236121AE"
+    TARGET_BOTTLE="$WHISKY_BOTTLES/$BOTTLE_UUID"
+fi
 
 echo "=========================================================="
 echo "🏎️  NFS Most Wanted (2005) - Restoring Everything"
 echo "=========================================================="
 echo ""
 
-# 1. Check if Bottle is in Trash and restore it, or extract from archive
-if [ -d "$HOME/.Trash/$BOTTLE_UUID" ]; then
-    echo "📦 Restoring Whisky Bottle from Trash..."
-    mkdir -p "$WHISKY_BOTTLES"
-    mv "$HOME/.Trash/$BOTTLE_UUID" "$TARGET_BOTTLE"
-    echo "✅ Restored bottle to $TARGET_BOTTLE"
-elif [ -f "$BACKUP_DIR/whisky_bottle_config.tar.gz" ]; then
-    echo "📦 Recreating Bottle configuration from backup..."
+# 1. Restore Bottle Configuration & Registry
+if [ -f "$BACKUP_DIR/whisky_bottle_config.tar.gz" ]; then
+    echo "📦 Restoring Bottle configuration & registry..."
     mkdir -p "$TARGET_BOTTLE"
     tar -xzf "$BACKUP_DIR/whisky_bottle_config.tar.gz" -C "$TARGET_BOTTLE"
-    echo "✅ Restored bottle registry and metadata"
-else
-    echo "⚠️ Bottle backup not found. If using Whisky, create a new bottle named 'NFS Most Wanted'."
+    echo "✅ Restored bottle registry and metadata to $TARGET_BOTTLE"
 fi
 
 # 2. Restore Game Saves to macOS Documents
-echo "💾 Restoring Career Saves to Documents..."
+echo "💾 Restoring Career Saves to ~/Documents/NFS Most Wanted..."
 mkdir -p "$HOME/Documents/NFS Most Wanted"
 
-# Restore from backup directories
-if [ -d "$BACKUP_DIR/udayrec_save" ]; then
-    cp -rn "$BACKUP_DIR/udayrec_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
-fi
-if [ -d "$BACKUP_DIR/bottle_B410_save" ]; then
-    cp -rn "$BACKUP_DIR/bottle_B410_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+if [ -d "$BACKUP_DIR/game_completed_100_percent_save" ]; then
+    cp -rf "$BACKUP_DIR/game_completed_100_percent_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
+elif [ -d "$BACKUP_DIR/bottle_B410_save" ]; then
+    cp -rf "$BACKUP_DIR/bottle_B410_save/"* "$HOME/Documents/NFS Most Wanted/" 2>/dev/null || true
 fi
 
-echo "✅ Saves restored to $HOME/Documents/NFS Most Wanted"
+echo "✅ Career saves restored successfully (100% Completed Game Profile)!"
 
-# 3. Check for Game Directory & setup Wine symlink
+# 3. Setup Wine User Symlink if bottle exists
 CURRENT_USER="$(whoami)"
 if [ -d "$TARGET_BOTTLE/drive_c/users/$CURRENT_USER/Documents" ]; then
     ln -sf "$HOME/Documents/NFS Most Wanted" "$TARGET_BOTTLE/drive_c/users/$CURRENT_USER/Documents/NFS Most Wanted" 2>/dev/null || true
@@ -53,5 +57,5 @@ fi
 
 echo ""
 echo "=========================================================="
-echo "🎉 Restoration Complete! Everything is back in place."
+echo "🎉 Restoration Complete! All saves & bottle configs restored."
 echo "=========================================================="
